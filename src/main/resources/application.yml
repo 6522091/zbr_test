@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: scheduler-test
+  
+  # WebFlux配置
+  webflux:
+    base-path: /api/v1
+
+# Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.scheduler: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 应用配置
+scheduler:
+  runner:
+    # Runner申请超时时间（毫秒）
+    allocation-timeout: 5000
+    # Runner连接超时时间（毫秒）
+    connection-timeout: 10000
+    # Runner执行超时时间（毫秒）
+    execution-timeout: 30000

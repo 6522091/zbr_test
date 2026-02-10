@@ -1,0 +1,22 @@
+# 性能测试专用配置
+server:
+  port: 0  # 随机端口，避免冲突
+
+spring:
+  application:
+    name: scheduler-test-performance
+
+# 日志配置 - 性能测试时减少日志输出
+logging:
+  level:
+    root: WARN
+    com.scheduler: INFO
+    org.springframework: WARN
+    reactor: WARN
+
+# 性能测试配置
+scheduler:
+  runner:
+    allocation-timeout: 10000
+    connection-timeout: 20000
+    execution-timeout: 60000
