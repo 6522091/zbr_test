@@ -34,7 +34,7 @@ public class RunnerController {
      * 查询Runner状态
      * GET /api/v1/runners/{id}
      */
-    @GetMapping("/{id}")
+    @GetMapping("/test/{id}")
     public Mono<RunnerInfo> getRunnerStatus(@PathVariable String id) {
         return runnerService.getRunnerStatus(id);
     }
