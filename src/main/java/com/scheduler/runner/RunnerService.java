@@ -64,7 +64,7 @@ public class RunnerService {
      * 查询Runner状态
      * 使用虚拟线程执行
      */
-    public Mono<RunnerInfo> getRunnerStatus(String runnerId) {
+    public Mono<RunnerInfo> getRunningStatus(String runnerId) {
         return Mono.fromCallable(() -> {
             RunnerInfo runner = runners.get(runnerId);
             if (runner == null) {
