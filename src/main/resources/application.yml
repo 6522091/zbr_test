@@ -37,3 +37,10 @@ scheduler:
     connection-timeout: 10000
     # Runner执行超时时间（毫秒）
     execution-timeout: 30000
+
+# GitHub API配置
+github:
+  api:
+    # GitHub Personal Access Token (可选，未设置时使用匿名访问，有速率限制)
+    # 设置方式: export GITHUB_API_TOKEN=your_token 或在此配置
+    token: ${GITHUB_API_TOKEN:}
