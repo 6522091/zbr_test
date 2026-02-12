@@ -24,9 +24,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ActionSchedulerService {
-    
+
     private final ActionParser actionParser;
     private final RunnerService runnerService;
+    private final RunStatusService runStatusService;
     
     /**
      * 解析并调度Action
@@ -49,8 +50,11 @@ public class ActionSchedulerService {
             response.setStatus(RunResponse.RunStatus.SUCCESS);
             response.setEndTime(LocalDateTime.now());
             response.setMessage("No jobs to execute");
-            return Mono.just(response);
+            return runStatusService.saveRunStatus(response);
         }
+
+        // 保存初始状态
+        runStatusService.saveRunStatus(response).subscribe();
         
         // 申请所有Runner
         return Flux.fromIterable(requirements)
@@ -76,7 +80,10 @@ public class ActionSchedulerService {
                 
                 response.setRunners(runnerInfos);
                 response.setStatus(RunResponse.RunStatus.RUNNING);
-                
+
+                // 保存RUNNING状态
+                runStatusService.saveRunStatus(response).subscribe();
+
                 // 连接并执行所有Runner
                 return Flux.fromIterable(allocateResponses)
                     .flatMap(allocateResponse -> 
@@ -84,21 +91,22 @@ public class ActionSchedulerService {
                             .flatMap(runner -> runnerService.executeRunner(runner.getRunnerId()))
                     )
                     .collectList()
-                    .map(completedRunners -> {
+                    .flatMap(completedRunners -> {
                         // 检查所有Runner是否成功完成
                         boolean allSuccess = completedRunners.stream()
                             .allMatch(r -> r.getStatus() == RunnerInfo.RunnerStatus.COMPLETED);
-                        
-                        response.setStatus(allSuccess ? 
-                            RunResponse.RunStatus.SUCCESS : 
+
+                        response.setStatus(allSuccess ?
+                            RunResponse.RunStatus.SUCCESS :
                             RunResponse.RunStatus.FAILURE);
                         response.setEndTime(LocalDateTime.now());
-                        response.setMessage(allSuccess ? 
-                            "All jobs completed successfully" : 
+                        response.setMessage(allSuccess ?
+                            "All jobs completed successfully" :
                             "Some jobs failed");
                         response.setRunners(completedRunners);
-                        
-                        return response;
+
+                        // 保存最终状态
+                        return runStatusService.saveRunStatus(response);
                     });
             });
     }
